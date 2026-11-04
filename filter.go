@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"strings"
 )
 
@@ -24,13 +23,11 @@ func FilterUser(usr User) (bool, error) {
 		}
 	}
 
-	errGender := errors.New("Gender tidak valid")
-
 	switch gender {
 	case "p":
 	case "l":
 	default:
-		return true, errGender
+		return false, nil
 	}
 
 	return true, nil

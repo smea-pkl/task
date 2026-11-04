@@ -73,7 +73,7 @@ func TestUserInput(t *testing.T) {
 		}
 
 		check, err := FilterUser(usr)
-		assert.True(t, check)
-		assert.NotNil(t, err)
+		assert.False(t, check)
+		assert.Nil(t, err)
 	})
 }
