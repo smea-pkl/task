@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"os"
 )
 
 func main() {
@@ -18,14 +17,6 @@ func main() {
 	// fmt.Println("Halo", nama)
 
 	jawaban := "Y"
-	filename := "data.txt"
-
-	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
-	if err != nil {
-		panic(err)
-	}
-
-	defer file.Close()
 
 Parent:
 	for jawaban == "Y" || jawaban == "y" {
@@ -44,7 +35,10 @@ Parent:
 			continue Parent
 		}
 
-		file.WriteString(user.UserToString() + "\n")
+		check := InsertData(user.UserToString() + "\n")
+		if !check {
+			fmt.Println("Gagal memasukkan data!")
+		}
 
 		fmt.Println("Lanjut (Y/n) : ")
 		_, err = fmt.Scan(&jawaban)
