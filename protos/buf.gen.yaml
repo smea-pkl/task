@@ -1,0 +1,13 @@
+version = v2
+
+clean = true 
+
+plugin:
+
+  - local: ["go","tool","proton-gen-go"]
+    out: ../backend/gen
+    opt: paths=source-relative
+
+  - local: ["go","tool","proton-connect-gen-go"]
+    out: ../backend/gen
+    opt: paths=source-relative

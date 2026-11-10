@@ -5,21 +5,10 @@ import (
 )
 
 func main() {
-	// var nama string
 
-	// fmt.Print("Masukkan nama anda : ")
-	// _, err := fmt.Scan(&nama)
-
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// fmt.Println("Halo", nama)
-
-	jawaban := "Y"
-
+	pilihan := "Y"
 Parent:
-	for jawaban == "Y" || jawaban == "y" {
+	for pilihan == "Y" || pilihan == "y" {
 
 		var user, err = NewUser()
 		if err != nil {
@@ -35,16 +24,17 @@ Parent:
 			continue Parent
 		}
 
-		check := InsertData(user.UserToString() + "\n")
+		check := InsertData(fmt.Sprint(user) + "\n")
 		if !check {
 			fmt.Println("Gagal memasukkan data!")
 		}
 
 		fmt.Println("Lanjut (Y/n) : ")
-		_, err = fmt.Scan(&jawaban)
+		_, err = fmt.Scan(&pilihan)
 		if err != nil {
 			panic(err)
 		}
+
 	}
 
 }

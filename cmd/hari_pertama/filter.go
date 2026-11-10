@@ -6,17 +6,17 @@ import (
 
 var blacklist []string = []string{
 	"sutarman",
-	"andika",
 	"fitri",
+	"asep",
 }
 
 func FilterUser(usr User) (bool, error) {
-	username := strings.ToLower(usr.username)
-	gender := strings.ToLower(usr.gender)
+	username := strings.ToLower(usr.Username)
+	gender := strings.ToLower(usr.Gender)
 
 	for _, v := range blacklist {
 		if v == username {
-			if username == "fitri" && usr.gender != "p" {
+			if username == "fitri" && usr.Gender != "p" {
 				return true, nil
 			}
 			return false, nil
