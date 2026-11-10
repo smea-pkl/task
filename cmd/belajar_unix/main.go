@@ -1,27 +1,35 @@
 package main
 
+import "fmt"
+
 type User struct {
 	Name     string
 	Username string
 }
 
 func main() {
-
 	users := []User{
-		User{Name: "anita", Username: "sdasd"},
-		User{Name: "dita", Username: "asd"},
-		User{Name: "anita", Username: "3"},
-		User{Name: "anita", Username: "1"},
-		User{Name: "dita", Username: "4"},
-		User{Name: "j", Username: "fgh"},
+		{Name: "anita", Username: "sdasd"},
+		{Name: "dita", Username: "asd"},
+		{Name: "anita", Username: "3"},
+		{Name: "anita", Username: "1"},
+		{Name: "dita", Username: "4"},
+		{Name: "j", Username: "fgh"},
 	}
-	user_unik := []User{}
 
-	// 1. ambil satu persatu users.
-	for _, unix := range users {
+	uniqueUsers := make([]User, 0, len(users))
+	seen := make(map[string]bool)
 
+	for _, user := range users {
+		key := user.Name + ":" + user.Username
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+		uniqueUsers = append(uniqueUsers, user)
 	}
-	var unik map[string]bool = map[string]bool{}
+
+	fmt.Println(uniqueUsers)
 }
 
 // contoh ruwet

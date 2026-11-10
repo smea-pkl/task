@@ -5,6 +5,10 @@ import (
 )
 
 func main() {
+	database, err := openDatabase()
+	if err != nil {
+		panic(err)
+	}
 
 	pilihan := "Y"
 Parent:
@@ -24,9 +28,8 @@ Parent:
 			continue Parent
 		}
 
-		check := InsertData(fmt.Sprint(user) + "\n")
-		if !check {
-			fmt.Println("Gagal memasukkan data!")
+		if err := InsertData(database, user); err != nil {
+			fmt.Println("Gagal memasukkan data:", err)
 		}
 
 		fmt.Println("Lanjut (Y/n) : ")

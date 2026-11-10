@@ -1,21 +1,22 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
-func InsertData(usr string) bool {
-	filename := "user_data.txt"
-
-	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+func openDatabase() (*gorm.DB, error) {
+	database, err := gorm.Open(sqlite.Open("app.db"), &gorm.Config{})
 	if err != nil {
-		fmt.Println("Gagal membuka file:", err)
-		return false
+		return nil, err
 	}
-	defer file.Close()
 
-	file.WriteString(usr)
-	
-	return true
+	if err := database.AutoMigrate(&User{}); err != nil {
+		return nil, err
+	}
+	return database, nil
+}
+
+func InsertData(database *gorm.DB, usr User) error {
+	return database.Create(&usr).Error
 }
