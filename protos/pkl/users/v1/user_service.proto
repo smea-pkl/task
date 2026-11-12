@@ -12,8 +12,19 @@ message LoginResponse {
     string token = 1;
 }
 
+message RegisterRequest {
+    string nama = 1;
+    string username = 2;
+    string password = 3;
+}
+
+message RegisterResponse {
+    string nama = 1;
+    string username = 2;
+}
+
 
 service UserService {
     rpc Login(LoginRequest) returns (LoginResponse);
-    
+    rpc Register(RegisterRequest) returns (RegisterResponse);
 }

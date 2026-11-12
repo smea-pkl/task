@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file pkl/users/v1/user_service.proto.
  */
 export const file_pkl_users_v1_user_service: GenFile = /*@__PURE__*/
-  fileDesc("Ch9wa2wvdXNlcnMvdjEvdXNlcl9zZXJ2aWNlLnByb3RvEgxwa2wudXNlcnMudjEiMgoMTG9naW5SZXF1ZXN0EhAKCHVzZXJuYW1lGAEgASgJEhAKCHBhc3N3b3JkGAIgASgJIh4KDUxvZ2luUmVzcG9uc2USDQoFdG9rZW4YASABKAkyTwoLVXNlclNlcnZpY2USQAoFTG9naW4SGi5wa2wudXNlcnMudjEuTG9naW5SZXF1ZXN0GhsucGtsLnVzZXJzLnYxLkxvZ2luUmVzcG9uc2VCJlokcGtsL2JhY2tlbmQvZ2VuL3BrbC91c2Vycy92MTt1c2Vyc3YxYgZwcm90bzM");
+  fileDesc("Ch9wa2wvdXNlcnMvdjEvdXNlcl9zZXJ2aWNlLnByb3RvEgxwa2wudXNlcnMudjEiMgoMTG9naW5SZXF1ZXN0EhAKCHVzZXJuYW1lGAEgASgJEhAKCHBhc3N3b3JkGAIgASgJIh4KDUxvZ2luUmVzcG9uc2USDQoFdG9rZW4YASABKAkiQwoPUmVnaXN0ZXJSZXF1ZXN0EgwKBG5hbWEYASABKAkSEAoIdXNlcm5hbWUYAiABKAkSEAoIcGFzc3dvcmQYAyABKAkiMgoQUmVnaXN0ZXJSZXNwb25zZRIMCgRuYW1hGAEgASgJEhAKCHVzZXJuYW1lGAIgASgJMpoBCgtVc2VyU2VydmljZRJACgVMb2dpbhIaLnBrbC51c2Vycy52MS5Mb2dpblJlcXVlc3QaGy5wa2wudXNlcnMudjEuTG9naW5SZXNwb25zZRJJCghSZWdpc3RlchIdLnBrbC51c2Vycy52MS5SZWdpc3RlclJlcXVlc3QaHi5wa2wudXNlcnMudjEuUmVnaXN0ZXJSZXNwb25zZUImWiRwa2wvYmFja2VuZC9nZW4vcGtsL3VzZXJzL3YxO3VzZXJzdjFiBnByb3RvMw");
 
 /**
  * @generated from message pkl.users.v1.LoginRequest
@@ -52,6 +52,55 @@ export const LoginResponseSchema: GenMessage<LoginResponse> = /*@__PURE__*/
   messageDesc(file_pkl_users_v1_user_service, 1);
 
 /**
+ * @generated from message pkl.users.v1.RegisterRequest
+ */
+export type RegisterRequest = Message<"pkl.users.v1.RegisterRequest"> & {
+  /**
+   * @generated from field: string nama = 1;
+   */
+  nama: string;
+
+  /**
+   * @generated from field: string username = 2;
+   */
+  username: string;
+
+  /**
+   * @generated from field: string password = 3;
+   */
+  password: string;
+};
+
+/**
+ * Describes the message pkl.users.v1.RegisterRequest.
+ * Use `create(RegisterRequestSchema)` to create a new message.
+ */
+export const RegisterRequestSchema: GenMessage<RegisterRequest> = /*@__PURE__*/
+  messageDesc(file_pkl_users_v1_user_service, 2);
+
+/**
+ * @generated from message pkl.users.v1.RegisterResponse
+ */
+export type RegisterResponse = Message<"pkl.users.v1.RegisterResponse"> & {
+  /**
+   * @generated from field: string nama = 1;
+   */
+  nama: string;
+
+  /**
+   * @generated from field: string username = 2;
+   */
+  username: string;
+};
+
+/**
+ * Describes the message pkl.users.v1.RegisterResponse.
+ * Use `create(RegisterResponseSchema)` to create a new message.
+ */
+export const RegisterResponseSchema: GenMessage<RegisterResponse> = /*@__PURE__*/
+  messageDesc(file_pkl_users_v1_user_service, 3);
+
+/**
  * @generated from service pkl.users.v1.UserService
  */
 export const UserService: GenService<{
@@ -62,6 +111,14 @@ export const UserService: GenService<{
     methodKind: "unary";
     input: typeof LoginRequestSchema;
     output: typeof LoginResponseSchema;
+  },
+  /**
+   * @generated from rpc pkl.users.v1.UserService.Register
+   */
+  register: {
+    methodKind: "unary";
+    input: typeof RegisterRequestSchema;
+    output: typeof RegisterResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_pkl_users_v1_user_service, 0);
