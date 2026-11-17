@@ -9,6 +9,7 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func db() {
@@ -24,7 +25,7 @@ func db() {
 	}
 
 	// 3. Buka file data.txt lama
-	txtFile := "data.txt"
+	txtFile := "user_data.txt"
 	file, err := os.Open(txtFile)
 	if err != nil {
 		log.Fatalf("Gagal membuka file %s: %v", txtFile, err)
@@ -68,10 +69,27 @@ func db() {
 	}
 
 	// 5. Simpan ke database menggunakan GORM (Clause OnConflict untuk menghindari error duplikat)
-	result := db.CreateInBatches(usersToMigrate, 100)
-	if result.Error != nil {
-		log.Fatalf("Gagal migrasi data ke SQLite: %v", result.Error)
+	// 5. Simpan ke database. Gunakan OnConflict DoNothing supaya baris duplikat
+	// (Username punya unique) tidak memicu error, melainkan dilewati.
+	var inserted, skipped int
+	for _, user := range usersToMigrate {
+		result := db.Clauses(clause.OnConflict{DoNothing: true}).Create(&user)
+		if result.Error != nil {
+			log.Printf("Gagal memigrasikan user %s: %v", user.Username, result.Error)
+			skipped++
+			continue
+		}
+		if result.RowsAffected > 0 {
+			inserted++
+		} else {
+			skipped++
+		}
 	}
 
-	fmt.Printf(" Berhasil memindahkan %d data dari %s ke SQLite (app.db)!\n", result.RowsAffected, txtFile)
+	if inserted == 0 && skipped == 0 {
+		fmt.Println("Tidak ada data baru yang ditemukan untuk dimigrasi.")
+		return
+	}
+
+	fmt.Printf(" Berhasil memindahkan %d data dari %s ke SQLite (app.db)!\n", inserted, txtFile)
 }

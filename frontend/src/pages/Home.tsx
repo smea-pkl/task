@@ -1,5 +1,5 @@
 import Layout from "@/layout/Layout";
-function Home() {
-  <Layout></Layout>;
+
+export default function Home() {
+  return <Layout />;
 }
-export default Home;

@@ -16,9 +16,6 @@ func FilterUser(usr User) (bool, error) {
 
 	for _, v := range blacklist {
 		if v == username {
-			if username == "fitri" && usr.Gender != "p" {
-				return true, nil
-			}
 			return false, nil
 		}
 	}

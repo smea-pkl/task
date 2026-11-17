@@ -12,6 +12,10 @@ plugins:
     out: ../backend/gen
     opt: paths=source_relative
   
+  - local: ["go","tool","protoc-gen-go-grpc"]
+    out: ../backend/gen
+    opt: paths=source_relative
+  
   - local: ["node", "../frontend/node_modules/@bufbuild/protoc-gen-es/bin/protoc-gen-es"]
     out: ../frontend/src/gen
     opt: target=ts
