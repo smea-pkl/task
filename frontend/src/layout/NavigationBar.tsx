@@ -2,9 +2,9 @@ import { Box, Button, Flex, HStack } from "@chakra-ui/react";
 import { Link } from "react-router";
 
 function NavigationBar() {
-  var isLogin = false;
+  const isLogin = false;
 
-  var loginedMenu: React.JSX.Element;
+  let loginedMenu: React.JSX.Element;
 
   if (isLogin) {
     loginedMenu = (
@@ -37,6 +37,11 @@ function NavigationBar() {
             Judol
           </Button>
           {loginedMenu}
+          <Link to={"/Register"}>
+            <Button size="sm" variant="ghost">
+              Register
+            </Button>
+          </Link>
         </HStack>
       </Flex>
     </Box>

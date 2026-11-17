@@ -11,7 +11,7 @@ import {
 import { PasswordInput } from "@/components/ui/password-input";
 import { toaster } from "@/components/ui/toaster";
 import { createConnectTransport } from "@connectrpc/connect-web";
-import { createClient } from "@connectrpc/connect";
+import { ConnectError, createClient } from "@connectrpc/connect";
 import { UserService } from "@/gen/pkl/users/v1/user_service_pb";
 
 const transport = createConnectTransport({
@@ -23,29 +23,69 @@ export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const login = () => {
+    // 1. Tolak jika username atau password kosong
+    if (!username.trim() || !password.trim()) {
+      toaster.create({
+        title: "Login Gagal",
+        description: "Username dan Password tidak boleh kosong!",
+        type: "error",
+      });
+      return;
+    }
+
+    setIsLoading(true);
     userServiceClient
-      .login({ username, password })
-      .then(() => {
+      .login({ username: username.trim(), password })
+      .then((res) => {
+        // 2. Pastikan token valid (bukan kosong atau "0")
+        if (!res.token || res.token === "0") {
+          toaster.create({
+            title: "Login Gagal",
+            description: "Username atau password salah",
+            type: "error",
+          });
+          return;
+        }
+
+        // Simpan token sesuai pilihan Remember me
+        if (rememberMe) {
+          localStorage.setItem("token", res.token);
+        } else {
+          sessionStorage.setItem("token", res.token);
+        }
+
         toaster.create({
           title: "Login",
           description: "Login Berhasil",
           type: "success",
         });
       })
-      .catch(() => {
+      .catch((err) => {
+        const connectErr = ConnectError.from(err);
         toaster.create({
-          title: "Login",
-          description: "Login Gagal",
+          title: "Login Gagal",
+          description: connectErr.rawMessage || "Gagal terhubung ke server",
           type: "error",
         });
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
+  };
+
+  const handleCancel = () => {
+    setUsername("");
+    setPassword("");
+    setRememberMe(false);
   };
 
   return (
     <Flex minH="100dvh" align="center" justify="center" p="4">
-      <Card.Root maxW="sm">
+      <Card.Root maxW="sm" w="full">
         <Card.Header>
           <Card.Title>Login</Card.Title>
           <Card.Description>Isi Username dan Password Anda</Card.Description>
@@ -53,15 +93,15 @@ export default function Login() {
         <Card.Body>
           <Stack gap="4" w="full">
             <Field.Root>
-              <Field.Label>Username</Field.Label>
               <Input
+                placeholder="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
             </Field.Root>
             <Field.Root>
-              <Field.Label>Password</Field.Label>
               <PasswordInput
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 visible={visible}
@@ -69,17 +109,21 @@ export default function Login() {
               />
             </Field.Root>
           </Stack>
-          <Checkbox.Root mt="2" value="remember me">
+          <Checkbox.Root
+            mt="3"
+            checked={rememberMe}
+            onCheckedChange={(e) => setRememberMe(!!e.checked)}
+          >
             <Checkbox.HiddenInput />
             <Checkbox.Control />
             <Checkbox.Label>Remember me</Checkbox.Label>
           </Checkbox.Root>
         </Card.Body>
         <Card.Footer justifyContent="flex-end">
-          <Button variant="outline" onClick={() => {}}>
+          <Button variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button variant="solid" onClick={login}>
+          <Button variant="solid" loading={isLoading} onClick={login}>
             Sign in
           </Button>
         </Card.Footer>
