@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"os"
 
-	usersv1 "pkl/backend/gen/pkl/users/v1"
 	"pkl/backend/database"
+	usersv1 "pkl/backend/gen/pkl/users/v1"
 	"pkl/backend/models"
 
 	"google.golang.org/grpc"
@@ -23,16 +23,23 @@ import (
 // UserServer mengimplementasikan pkl.users.v1.UserService.
 type UserServer struct {
 	usersv1.UnimplementedUserServiceServer
-	db *gorm.DB
+	db     *gorm.DB
+	jwtCfg Config
 }
 
 // Login memvalidasi kredensial pengguna terhadap database.
 func (s *UserServer) Login(ctx context.Context, req *usersv1.LoginRequest) (*usersv1.LoginResponse, error) {
 	var user models.User
-	if err := s.db.Where("username = ? AND password = ?", req.Username, req.Password).First(&user).Error; err == nil {
-		return &usersv1.LoginResponse{Token: "123456"}, nil
+	if err := s.db.Where("username = ? AND password = ?", req.Username, req.Password).First(&user).Error; err != nil {
+		return nil, status.Errorf(codes.Unauthenticated, "username atau password salah")
 	}
-	return &usersv1.LoginResponse{Token: "0"}, nil
+
+	token, err := s.jwtCfg.Generate(user.ID, user.Username)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "gagal membuat token: %v", err)
+	}
+
+	return &usersv1.LoginResponse{Token: token}, nil
 }
 
 // Register mendaftarkan pengguna baru dan menyimpannya ke database.
@@ -60,7 +67,7 @@ func (s *UserServer) Register(ctx context.Context, req *usersv1.RegisterRequest)
 func main() {
 	dbFile := os.Getenv("DATABASE_FILE")
 	if dbFile == "" {
-		dbFile = "app.db"
+		dbFile = "../../app.db"
 	}
 
 	db, err := database.Init(dbFile)
@@ -68,14 +75,10 @@ func main() {
 		log.Fatalf("gagal membuka database: %v", err)
 	}
 
-	// Seed pengguna bawaan agar demo tetap berjalan.
-	var count int64
-	db.Model(&models.User{}).Where("username = ?", "heri").Count(&count)
-	if count == 0 {
-		db.Create(&models.User{Nama: "Heri", Username: "heri", Password: "heri7777"})
-	}
+	jwtCfg := NewConfig()
+	log.Printf("jwt: issuer=%s ttl=%s", jwtCfg.Issuer, jwtCfg.TTL)
 
-	srv := &UserServer{db: db}
+	srv := &UserServer{db: db, jwtCfg: jwtCfg}
 
 	listener, err := net.Listen("tcp", ":50051")
 	if err != nil {

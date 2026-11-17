@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"log"
 	"net/http"
 
@@ -47,10 +48,34 @@ func withCORS(h http.Handler) http.Handler {
 	})
 }
 
+// authInterceptor memvalidasi token JWT untuk RPC selain Login dan Register.
+func authInterceptor(cfg Config) connect.UnaryInterceptorFunc {
+	return func(next connect.UnaryFunc) connect.UnaryFunc {
+		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
+			switch req.Spec().Procedure {
+			case usersv1connect.UserServiceLoginProcedure, usersv1connect.UserServiceRegisterProcedure:
+				return next(ctx, req)
+			}
+
+			token := ExtractToken(req.Header().Get("Authorization"))
+			if token == "" {
+				return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("token tidak ada"))
+			}
+			if _, err := cfg.Parse(token); err != nil {
+				return nil, connect.NewError(connect.CodeUnauthenticated, err)
+			}
+			return next(ctx, req)
+		}
+	}
+}
+
 // startConnectServer mendengarkan HTTP di addr dan melayani RPC pkl.users.v1.UserService.
 // Frontend menggunakan @connectrpc/connect-web ke alamat ini.
 func startConnectServer(srv *UserServer, addr string) error {
-	path, handler := usersv1connect.NewUserServiceHandler(&connectServer{UserServer: srv})
+	path, handler := usersv1connect.NewUserServiceHandler(
+		&connectServer{UserServer: srv},
+		connect.WithInterceptors(authInterceptor(srv.jwtCfg)),
+	)
 	mux := http.NewServeMux()
 	mux.Handle(path, handler)
 	httpSrv := &http.Server{
