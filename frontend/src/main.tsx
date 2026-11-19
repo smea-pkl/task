@@ -5,6 +5,7 @@ import { Provider } from "@/components/ui/provider";
 import Login from "./pages/Login.tsx";
 import Register from "./pages/Register.tsx";
 import Home from "./pages/Home.tsx";
+import Profile from "./pages/Profile.tsx";
 import { Toaster } from "./components/ui/toaster.tsx";
 
 createRoot(document.getElementById("root")!).render(
@@ -15,6 +16,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </BrowserRouter>
       <Toaster />

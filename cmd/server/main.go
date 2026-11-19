@@ -8,6 +8,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"strings"
 
 	"pkl/backend/database"
 	usersv1 "pkl/backend/gen/pkl/users/v1"
@@ -64,7 +65,58 @@ func (s *UserServer) Register(ctx context.Context, req *usersv1.RegisterRequest)
 	}, nil
 }
 
+// GetProfile mengambil data profil dari database (bukan dari token).
+// Data user tetap diambil dari DB supaya potensi existing data tetap bisa
+// dicentang/diubah (mis. nama, saldo), sementara keamanan dijamin JWT.
+func (s *UserServer) GetProfile(ctx context.Context, req *usersv1.GetProfileRequest) (*usersv1.GetProfileResponse, error) {
+	claims, ok := ctx.Value(claimsKey{}).(*Claims)
+	if !ok || claims == nil {
+		return nil, status.Errorf(codes.Unauthenticated, "token tidak valid")
+	}
+
+	var user models.User
+	if err := s.db.Where("id = ?", claims.UserID).First(&user).Error; err != nil {
+		return nil, status.Errorf(codes.NotFound, "user tidak ditemukan")
+	}
+
+	return &usersv1.GetProfileResponse{
+		UserId:   uint32(user.ID),
+		Nama:     user.Nama,
+		Username: user.Username,
+	}, nil
+}
+
+// loadDotEnv membaca file .env (jika ada) dan mengisi environment variable
+// yang belum diset. Mencoba beberapa lokasi karena working directory bisa
+// berbeda (project root atau cmd/server).
+func loadDotEnv() {
+	for _, path := range []string{".env", "../../.env", "../.env"} {
+		data, err := os.ReadFile(path)
+		if err != nil {
+			continue
+		}
+		for _, line := range strings.Split(string(data), "\n") {
+			line = strings.TrimSpace(line)
+			if line == "" || strings.HasPrefix(line, "#") {
+				continue
+			}
+			line = strings.TrimPrefix(line, "export ")
+			parts := strings.SplitN(line, "=", 2)
+			if len(parts) != 2 {
+				continue
+			}
+			key := strings.TrimSpace(parts[0])
+			val := strings.Trim(strings.TrimSpace(parts[1]), `"'`)
+			if os.Getenv(key) == "" {
+				_ = os.Setenv(key, val)
+			}
+		}
+	}
+}
+
 func main() {
+	loadDotEnv()
+
 	dbFile := os.Getenv("DATABASE_FILE")
 	if dbFile == "" {
 		dbFile = "../../app.db"

@@ -1,4 +1,5 @@
-import { createConnectTransport, createClient } from "@connectrpc/connect-web";
+import { createConnectTransport } from "@connectrpc/connect-web";
+import { createClient } from "@connectrpc/connect";
 import { UserService } from "@/gen/pkl/users/v1/user_service_pb";
 import { authInterceptor, loggingInterceptor } from "./interceptors";
 

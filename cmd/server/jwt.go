@@ -32,7 +32,7 @@ type Claims struct {
 func NewConfig() Config {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		secret = "***"
+		secret = "5b80522270261dc136c00c99ad196809fe16d36800ff224e2fc126598584387a"
 	}
 
 	ttl := 24 * time.Hour
@@ -44,7 +44,7 @@ func NewConfig() Config {
 
 	issuer := os.Getenv("JWT_ISSUER")
 	if issuer == "" {
-		issuer = "pkl"
+		issuer = "owi"
 	}
 
 	return Config{Secret: secret, TTL: ttl, Issuer: issuer}

@@ -1,2 +1,16 @@
+# env & secret
+.env
+.env.*
+
+# database
+*.db
+app.db
 pkl.db
+
+# build & dependency
+dist/
+node_modules/
 *.exe
+
+# log
+*.log

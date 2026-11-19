@@ -23,8 +23,17 @@ message RegisterResponse {
     string username = 2;
 }
 
+message GetProfileRequest {}
+
+message GetProfileResponse {
+    uint32 user_id = 1;
+    string nama = 2;
+    string username = 3;
+}
+
 
 service UserService {
     rpc Login(LoginRequest) returns (LoginResponse);
     rpc Register(RegisterRequest) returns (RegisterResponse);
+    rpc GetProfile(GetProfileRequest) returns (GetProfileResponse);
 }

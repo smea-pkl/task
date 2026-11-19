@@ -48,7 +48,14 @@ func withCORS(h http.Handler) http.Handler {
 	})
 }
 
+// claimsKey adalah tipe kosong (blank struct) yang dipakai sebagai kunci
+// context. Berguna agar handler yang butuh data user bisa mengambil
+// *Claims yang sudah divalidasi oleh authInterceptor.
+type claimsKey struct{}
+
 // authInterceptor memvalidasi token JWT untuk RPC selain Login dan Register.
+// Token yang valid akan disimpan dalam context (claimsKey{}) sehingga handler
+// bisa mengambil data user tanpa mem-parsing token ulang.
 func authInterceptor(cfg Config) connect.UnaryInterceptorFunc {
 	return func(next connect.UnaryFunc) connect.UnaryFunc {
 		return func(ctx context.Context, req connect.AnyRequest) (connect.AnyResponse, error) {
@@ -61,12 +68,24 @@ func authInterceptor(cfg Config) connect.UnaryInterceptorFunc {
 			if token == "" {
 				return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("token tidak ada"))
 			}
-			if _, err := cfg.Parse(token); err != nil {
+			claims, err := cfg.Parse(token)
+			if err != nil {
 				return nil, connect.NewError(connect.CodeUnauthenticated, err)
 			}
+			ctx = context.WithValue(ctx, claimsKey{}, claims) // ← simpan claims
 			return next(ctx, req)
 		}
 	}
+}
+
+// GetProfile menangani RPC UserService.GetProfile. Data diambil dari database
+// (bukan dari token) sesuai tipikal halaman profil.
+func (s *connectServer) GetProfile(ctx context.Context, req *connect.Request[usersv1.GetProfileRequest]) (*connect.Response[usersv1.GetProfileResponse], error) {
+	resp, err := s.UserServer.GetProfile(ctx, req.Msg)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse[usersv1.GetProfileResponse](resp), nil
 }
 
 // startConnectServer mendengarkan HTTP di addr dan melayani RPC pkl.users.v1.UserService.

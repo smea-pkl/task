@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import {
   Button,
   Card,
@@ -20,6 +21,7 @@ const transport = createConnectTransport({
 const userServiceClient = createClient(UserService, transport);
 
 export default function Login() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [visible, setVisible] = useState(false);
@@ -53,9 +55,9 @@ export default function Login() {
 
         // Simpan token sesuai pilihan Remember me
         if (rememberMe) {
-          localStorage.setItem("token", res.token);
+          localStorage.setItem("pkl_token", res.token);
         } else {
-          sessionStorage.setItem("token", res.token);
+          sessionStorage.setItem("pkl_token", res.token);
         }
 
         toaster.create({
@@ -63,6 +65,7 @@ export default function Login() {
           description: "Login Berhasil",
           type: "success",
         });
+        navigate("/profile");
       })
       .catch((err) => {
         const connectErr = ConnectError.from(err);
